@@ -1,0 +1,188 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="1660" viewBox="0 0 2400 1660" role="img" aria-labelledby="title description">
+  <title id="title">AutoSLR — Collaborative agent architecture</title>
+  <desc id="description">Proposed AutoSLR architecture. A researcher approves scope and reviews decisions. A Research Coordinator interprets the question, revises the research plan and coordinates a dynamic task graph. A scheduler manages dependencies, ownership and ready tasks for a pool of specialist agents. Agents can propose new tasks and use tools, while the coordinator, scheduler and agents read and update shared research state. The shared space retains protocols, literature, source-linked evidence, open issues, outputs and task history. An evidence explorer exposes the records, visual analysis and resource use to the researcher.</desc>
+  <defs>
+    <marker id="control-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9 Z" fill="#566B77"/></marker>
+    <marker id="control-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M9 1 L1 5 L9 9 Z" fill="#566B77"/></marker>
+    <marker id="state-end" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M1 1 L9 5 L1 9 Z" fill="#4F847A"/></marker>
+    <marker id="state-start" viewBox="0 0 10 10" refX="1" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M9 1 L1 5 L9 9 Z" fill="#4F847A"/></marker>
+    <style>
+      text { font-family: Arial, Helvetica, sans-serif; fill: #20313D; }
+      .canvas { fill: #F4F6F6; }
+      .panel { fill: #FFFFFF; stroke: #D8E1E2; stroke-width: 1.6; }
+      .coordination { fill: #ECF4F1; stroke: #C0D5CE; stroke-width: 1.6; }
+      .workspace { fill: #EDF5F2; stroke: #BDD3CA; stroke-width: 1.6; }
+      .human { fill: #FBF4E9; stroke: #E1CEB4; stroke-width: 1.6; }
+      .agent { fill: #F7F9F9; stroke: #DDE5E5; stroke-width: 1.4; }
+      .eyebrow { font-size: 18px; font-weight: 700; letter-spacing: 1.7px; fill: #51746F; }
+      .human-eyebrow { font-size: 18px; font-weight: 700; letter-spacing: 1.7px; fill: #936A42; }
+      .title { font-size: 32px; font-weight: 700; }
+      .role { font-size: 24px; font-weight: 700; }
+      .body { font-size: 21px; fill: #56656D; }
+      .small { font-size: 19px; fill: #56656D; }
+      .label { font-size: 18px; fill: #526772; }
+      .state-label { font-size: 18px; fill: #45796E; }
+      .control { fill: none; stroke: #566B77; stroke-width: 2.7; stroke-linecap: round; stroke-linejoin: round; marker-start: url(#control-start); marker-end: url(#control-end); }
+      .state { fill: none; stroke: #4F847A; stroke-width: 2.5; stroke-dasharray: 7 6; stroke-linecap: round; marker-start: url(#state-start); marker-end: url(#state-end); }
+      .rule { stroke: #CCDCD6; stroke-width: 1.2; }
+    </style>
+  </defs>
+
+  <rect class="canvas" width="2400" height="1660"/>
+  <text x="64" y="56" class="eyebrow">PROPOSED SYSTEM DESIGN</text>
+  <text x="64" y="126" font-size="64" font-weight="700">AutoSLR</text>
+  <text x="408" y="123" font-size="33" fill="#56656D">Collaborative agent architecture</text>
+  <line x1="64" y1="158" x2="2336" y2="158" stroke="#D6DEDF" stroke-width="1.5"/>
+  <path d="M66 199 H108" class="control"/>
+  <text x="123" y="205" class="small">Task coordination</text>
+  <path d="M362 199 H404" class="state"/>
+  <text x="420" y="205" class="small">Shared evidence &amp; state</text>
+  <rect x="735" y="187" width="25" height="23" rx="5" fill="#F3E4CE"/>
+  <text x="773" y="205" class="small">Human review</text>
+
+  <!-- Human governance and research coordination -->
+  <rect x="64" y="248" width="368" height="178" rx="16" class="human"/>
+  <text x="92" y="286" class="human-eyebrow">HUMAN GOVERNANCE</text>
+  <text x="92" y="331" class="title">Researcher</text>
+  <text x="92" y="369" class="body">Question &amp; scope approval</text>
+  <text x="92" y="400" class="body">Disputes &amp; final review</text>
+
+  <rect x="512" y="248" width="1008" height="178" rx="16" class="coordination"/>
+  <text x="544" y="286" class="eyebrow">RESEARCH COORDINATION</text>
+  <text x="544" y="331" class="title">Research Coordinator</text>
+  <text x="544" y="369" class="body">Interpret intent · decompose questions · revise priorities</text>
+  <text x="544" y="400" class="body">Propose tasks · resolve conflicts · assess completion</text>
+  <path d="M438 338 H506" class="control"/>
+
+  <!-- Persistent research state -->
+  <rect x="1728" y="248" width="608" height="958" rx="18" class="workspace"/>
+  <text x="1760" y="286" class="eyebrow">SHARED RESEARCH SPACE</text>
+  <text x="1760" y="331" class="title">Review state &amp; evidence</text>
+  <text x="1760" y="369" class="body">Persistent records · versioned updates</text>
+  <line x1="1760" y1="396" x2="2304" y2="396" class="rule"/>
+
+  <text x="1760" y="443" class="role">Protocol &amp; questions</text>
+  <text x="1760" y="477" class="body">Scope · criteria · approved amendments</text>
+  <line x1="1760" y1="506" x2="2304" y2="506" class="rule"/>
+
+  <text x="1760" y="549" class="role">Literature &amp; documents</text>
+  <text x="1760" y="583" class="body">Candidates · versions · access outcomes</text>
+  <line x1="1760" y1="612" x2="2304" y2="612" class="rule"/>
+
+  <text x="1760" y="655" class="role">Evidence &amp; claims</text>
+  <text x="1760" y="689" class="body">Passages · tables · results · source links</text>
+  <line x1="1760" y1="718" x2="2304" y2="718" class="rule"/>
+
+  <text x="1760" y="761" class="role">Open issues &amp; decisions</text>
+  <text x="1760" y="795" class="body">Gaps · contradictions · reviewer changes</text>
+  <line x1="1760" y1="824" x2="2304" y2="824" class="rule"/>
+
+  <text x="1760" y="867" class="role">Research outputs</text>
+  <text x="1760" y="901" class="body">Comparisons · findings · report sections</text>
+  <line x1="1760" y1="930" x2="2304" y2="930" class="rule"/>
+
+  <text x="1760" y="973" class="role">Task history</text>
+  <text x="1760" y="1007" class="body">Owners · attempts · events · checkpoints</text>
+  <line x1="1760" y1="1036" x2="2304" y2="1036" class="rule"/>
+
+  <text x="1760" y="1081" class="body">Agents retrieve task-relevant evidence</text>
+  <text x="1760" y="1113" class="body">and publish source-linked updates.</text>
+  <rect x="1760" y="1142" width="544" height="38" rx="7" fill="#DEEBE5"/>
+  <text x="2032" y="1168" text-anchor="middle" font-size="19" fill="#3F6A5F">Versioned writes · retained provenance</text>
+
+  <path d="M1526 338 H1722" class="state"/>
+  <text x="1624" y="317" text-anchor="middle" class="state-label">Evidence &amp; gaps</text>
+
+  <!-- Task representation and execution policy -->
+  <rect x="64" y="514" width="368" height="196" rx="16" class="panel"/>
+  <text x="92" y="551" class="eyebrow">TASK RECORD</text>
+  <text x="92" y="589" class="body">Objective &amp; source scope</text>
+  <text x="92" y="620" class="body">Evidence &amp; dependencies</text>
+  <text x="92" y="651" class="body">Completion criteria</text>
+  <text x="92" y="682" class="body">Owner &amp; current status</text>
+
+  <rect x="512" y="514" width="1008" height="196" rx="16" class="panel"/>
+  <text x="544" y="551" class="eyebrow">DYNAMIC EXECUTION</text>
+  <text x="544" y="596" class="title">Task Graph &amp; Scheduler</text>
+  <text x="544" y="634" class="body">Dependencies · ownership · priority · concurrency</text>
+  <text x="544" y="666" class="body">Assign ready tasks · record outcomes · recover interrupted work</text>
+  <path d="M1016 432 V508" class="control"/>
+  <text x="1040" y="478" class="label">Plan &amp; progress</text>
+  <path d="M1526 612 H1722" class="state"/>
+  <text x="1624" y="590" text-anchor="middle" class="state-label">Task state</text>
+
+  <!-- Specialist capabilities; instances are allocated to research tasks -->
+  <rect x="64" y="806" width="1456" height="442" rx="18" class="panel"/>
+  <text x="96" y="846" class="eyebrow">SPECIALIST AGENT POOL</text>
+  <text x="96" y="882" class="body">Concurrent task execution · agent instances created as needed</text>
+  <path d="M1016 716 V800" class="control"/>
+  <text x="1040" y="765" class="label">Tasks · proposals · results</text>
+
+  <rect x="96" y="918" width="440" height="116" rx="11" class="agent"/>
+  <text x="116" y="953" class="role">Search Agents</text>
+  <text x="116" y="985" class="small">Database queries · citation expansion</text>
+  <text x="116" y="1013" class="small">Candidate discovery</text>
+
+  <rect x="560" y="918" width="440" height="116" rx="11" class="agent"/>
+  <text x="580" y="953" class="role">Acquisition Agents</text>
+  <text x="580" y="985" class="small">Full texts · versions · supplements</text>
+  <text x="580" y="1013" class="small">Open sources · web · library</text>
+
+  <rect x="1024" y="918" width="464" height="116" rx="11" class="agent"/>
+  <text x="1044" y="953" class="role">Judgement Agents</text>
+  <text x="1044" y="985" class="small">Eligibility decisions &amp; evidence</text>
+  <text x="1044" y="1013" class="small">Escalate unresolved cases</text>
+
+  <rect x="96" y="1054" width="440" height="116" rx="11" class="agent"/>
+  <text x="116" y="1089" class="role">Research Agents</text>
+  <text x="116" y="1121" class="small">Extraction · appraisal · comparison</text>
+  <text x="116" y="1149" class="small">Instances scoped to research questions</text>
+
+  <rect x="560" y="1054" width="440" height="116" rx="11" class="agent"/>
+  <text x="580" y="1089" class="role">Verification Agents</text>
+  <text x="580" y="1121" class="small">Claims · numbers · source support</text>
+  <text x="580" y="1149" class="small">Publish challenges &amp; revision tasks</text>
+
+  <rect x="1024" y="1054" width="464" height="116" rx="11" class="agent"/>
+  <text x="1044" y="1089" class="role">Reporting Agents</text>
+  <text x="1044" y="1121" class="small">Findings · report sections · figures</text>
+  <text x="1044" y="1149" class="small">Request evidence for unsupported claims</text>
+
+  <text x="96" y="1214" class="small">Agents can propose new tasks; accepted results update the shared review.</text>
+  <path d="M1526 1008 H1722" class="state"/>
+  <text x="1624" y="986" text-anchor="middle" class="state-label">Evidence updates</text>
+
+  <!-- External capabilities and research-facing interfaces -->
+  <rect x="64" y="1356" width="1456" height="220" rx="18" class="panel"/>
+  <text x="96" y="1397" class="eyebrow">TOOLS &amp; DATA ENVIRONMENT</text>
+  <path d="M792 1254 V1350" class="control"/>
+  <text x="816" y="1308" class="label">Tool calls &amp; observations</text>
+
+  <text x="96" y="1442" class="role">Discovery &amp; retrieval</text>
+  <text x="96" y="1477" class="small">OpenAlex snapshot · S2AG (planned)</text>
+  <text x="96" y="1507" class="small">Metadata indexes · citation APIs</text>
+
+  <text x="584" y="1442" class="role">Document &amp; analysis tools</text>
+  <text x="584" y="1477" class="small">Web / library access · PDF / HTML</text>
+  <text x="584" y="1507" class="small">Parsing · deduplication · calculations</text>
+
+  <text x="1072" y="1442" class="role">Storage &amp; model services</text>
+  <text x="1072" y="1477" class="small">LanceDB · documents · review log</text>
+  <text x="1072" y="1507" class="small">Local / LAN / cloud model APIs</text>
+
+  <text x="96" y="1547" class="small">Shared services for task execution, document access and persistent storage.</text>
+
+  <rect x="1728" y="1272" width="608" height="304" rx="18" class="human"/>
+  <path d="M2032 1212 V1266" class="state"/>
+  <text x="2056" y="1247" class="state-label">Review &amp; inspect</text>
+  <text x="1760" y="1310" class="human-eyebrow">RESEARCH INTERFACE</text>
+  <text x="1760" y="1354" class="title">Evidence explorer</text>
+  <text x="1760" y="1392" class="body">Literature evolution · PCA · source links</text>
+  <text x="1760" y="1423" class="body">Human decisions · report review</text>
+  <line x1="1760" y1="1447" x2="2304" y2="1447" stroke="#E0CEB8" stroke-width="1.2"/>
+  <text x="1760" y="1482" class="role">Resource view &amp; deliverables</text>
+  <text x="1760" y="1516" class="small">Queues · time · usage · available metrics</text>
+  <text x="1760" y="1546" class="small">Reports · evidence tables · PRISMA flow</text>
+
+  <text x="64" y="1624" font-size="20" fill="#5F716D">Scope amendments require approval · Claims retain source links · Completion follows review criteria</text>
+</svg>
