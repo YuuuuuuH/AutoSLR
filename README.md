@@ -8,14 +8,7 @@ The planned outputs are a working system, reference annotations and experiments,
 
 ## Current Status
 
-One feasibility test has done. Of 529 provisional records selected from openalex database for full-text review, 465 full-text files were acquired.
-Analyzing the full text is estimated to consume 100 million tokens. Using DeepSeek V4.1 Flash, the cost would be approximately £3, and the process would take around 5 hours.
-
-The test used research scripts and AI-assisted source review. Public full-text acquisition appears feasible for this computer-science candidate area.
-
-- [KV-cache case study and test analysis](02_KV_Cache_Case_Study.md)
-- [AutoSLR architecture and evaluation plan](03_AutoSLR_Architecture.md)
-
+[AutoSLR](03_AutoSLR_Architecture.md)
 
 ## Milestones
 
