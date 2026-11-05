@@ -31,10 +31,10 @@ The planning target is completion by 28 March 2027, which before submission date
 | W0 |---|Done|First Meeting|---|
 | W1 | 28 Sep | Done | Research question, scope and SLR background | One-page proposal |
 | W2 | 5 Oct |Done|Human SLR methods, AgentSLR review|Updated overview|
-| W3 | 12 Oct |In Progress|Define the research scope|The proposal|
-| W4 | 19 Oct |Plan|Writing|Background Chapter|
-| W5 | 26 Oct |---|---|---|
-| W6 | 2 Nov |---|---|---|
+| W3 | 12 Oct |Done|Define the research scope|The proposal|
+| W4 | 19 Oct |Done|Writing|Background Chapter|
+| W5 | 26 Oct |Done|---|---|
+| W6 | 2 Nov |In Progress|Implement AgentSLR| Comparable baseline|
 | W7 | 9 Nov |---|---|---|
 | W8 | 16 Nov |---|---|---|
 | W9 | 23 Nov |---|---|---|
