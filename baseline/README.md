@@ -9,7 +9,7 @@ This package provides four tools for the first screening stage and the PDF acqui
 | `scripts/batch.py` | Prepare, submit, inspect, and collect title-screening Batch jobs |
 | `scripts/collect_pdfs.py` | Acquire and validate PDFs, including sources found through AI web searches |
 
-`run.py` provides the command-line entry points. Supporting modules and the required subset of the author's implementation are included. Code and documentation use English, with Python comments and docstrings removed.
+`run.py` provides the command-line entry points. Supporting modules and the required subset of the author's implementation are included.
 
 ## Installation
 
@@ -74,7 +74,7 @@ Remove `--dry-run` to run standard inference.
 
 The default model is `gpt-6.1-terra`; the comparison model is `gpt-5.2-2025-12-11`. Standard results are written to `data/agentslr/client/<model>/<pathogen>/screening/abstract_screening.csv`. Raw response traces are saved under that model and pathogen's logs directory.
 
-`screen` handles the first stage only. Its public CLI has no stage or full-text mode selector.
+`screen` screens article titles and abstracts.
 
 | Request or runtime setting | Value |
 |---|---|
@@ -87,7 +87,7 @@ The default model is `gpt-6.1-terra`; the comparison model is `gpt-5.2-2025-12-1
 | Stage batch / concurrency | 64 / 8 |
 | hit_async | False, matching the original default |
 
-`source_manifest.json` records source versions and both original and packaged file hashes. Prompt files are preserved byte for byte. Matching this public implementation establishes reproducibility of these request conditions; historical author request logs and evaluated article IDs remain separate evidence requirements.
+`source_manifest.json` records source versions and both original and packaged file hashes. Prompt files are preserved byte for byte.
 
 ## 3. Run Batch screening
 
@@ -145,8 +145,6 @@ Retrieval first reuses existing PDFs, then checks Europe PMC identity records an
 
 Existing PDFs can be supplied through `--data-dir`; the cache layout is `harvests/<pathogen>/pdfs/<article_id>.pdf`. `--offline` validates and reuses local files without network calls. `--retry-missing` repeats automatic retrieval for missing records. Inputs are frozen by hash, so changing the selected corpus requires a new output directory.
 
-The saved 23 November 2026 delivery contains 2,745 candidates, 2,265 verified PDFs, and 480 missing PDFs. These are historical delivery counts; use each run's manifest for its current coverage.
-
 ## Complete missing PDFs with AI web search
 
 The collector creates the search queue and imports results. An AI agent with web access performs the discovery separately. PDF acquisition does not invoke an OpenAI model through these scripts.
@@ -181,7 +179,7 @@ For PDFs already downloaded by the AI, import and validate them offline.
 
 A file containing only an abstract, a different article, a damaged PDF, or unverified scanned pages remains unresolved. Keep these cases in the search queue with their failure evidence. A successful web search alone does not mark an article ready; successful PDF validation does.
 
-OpenAlex also offers cached full text through an authenticated, metered content API. Its account credits and access rules are separate from external open-access links. The historical delivery identified 200 missing articles with cached OpenAlex PDFs. Check the account's current access and usage before retrieving that content, and keep API keys out of saved source URLs. See [OpenAlex full-text access](https://help.openalex.org/access/fulltext/).
+OpenAlex also offers cached full text through an authenticated, metered content API. Its account credits and access rules are separate from external open-access links. Check the account's current access and usage before retrieving that content, and keep API keys out of saved source URLs. See [OpenAlex full-text access](https://help.openalex.org/access/fulltext/).
 
 Use the following task text when delegating discovery to an AI with web access.
 

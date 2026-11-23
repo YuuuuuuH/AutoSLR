@@ -57,5 +57,3 @@ The planning target is completion by 28 March 2027, which before submission date
 ## Evaluation Scope
 
 TBC
-
-[Baseline code and usage](baseline/README.md) — dataset download, title/abstract screening, Batch inference, PDF collection, and AI-assisted recovery of missing PDFs.
