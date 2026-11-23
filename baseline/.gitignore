@@ -1,0 +1,12 @@
+/.venv/
+__pycache__/
+*.py[cod]
+.env
+config.json
+config.local.json
+LOCAL_WORKSPACE.json
+/data/
+/outputs/
+*.log
+.idea/
+.DS_Store

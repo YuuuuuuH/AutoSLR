@@ -1,0 +1,8 @@
+pandas
+requests
+urllib3
+tqdm
+openai
+huggingface_hub
+pyarrow
+pymupdf
