@@ -7,8 +7,7 @@
     "download_dataset",
     "abstract_screen",
     "batch_abstract_screen",
-    "collect_pdfs",
-    "jats_xml_to_markdown"
+    "collect_pdfs"
   ],
   "vendor_files_sha256": {
     "args.py": "28b4270f48038e7e1e7fe1b8b472a111224abb7dab5f91a8cda226e081129e08",
@@ -47,16 +46,5 @@
   "source_transformations": [
     "Remove Python comments and docstrings",
     "Use English CLI text and documentation"
-  ],
-  "local_tools": {
-    "scripts/jats2md.py": {
-      "source": "AgentSLR_v2_20261104/tools/jats2md.py",
-      "source_sha256": "3c3f4d0a2dd7eef83846526c8b90c05bee5695401ba154f80b47c8e3b5d334ff",
-      "packaged_sha256": "4e7af05a3c8b8faa7815bb34dcbb353f40b4b94bfc6e0f3d2ba000b46bcc2f5d",
-      "changes": [
-        "Remove comments and docstrings",
-        "Accept an explicit CLI argument list"
-      ]
-    }
-  }
+  ]
 }

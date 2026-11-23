@@ -7,7 +7,6 @@ COMMANDS = {
     "download-pdfs": ("collect_pdfs", "Download and validate open-access PDFs for OCR"),
     "screen": ("screen", "Run title and abstract screening with offline preflight"),
     "batch": ("batch", "Prepare, submit, inspect and collect Batch screening jobs"),
-    "xml-to-md": ("jats2md", "Convert PMC JATS XML full texts to Markdown"),
 }
 
 
