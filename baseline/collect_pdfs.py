@@ -19,7 +19,29 @@ import requests
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
-from scripts.common import BASE, digest, now, read_json, save
+from datetime import datetime, timezone
+
+BASE = Path(__file__).resolve().parent
+
+
+def digest(path):
+    return sha256(Path(path).read_bytes()).hexdigest()
+
+
+def now():
+    return datetime.now(timezone.utc).isoformat()
+
+
+def read_json(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def save(path, value):
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.with_name(path.name + ".tmp")
+    temporary.write_text(json.dumps(value, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    temporary.replace(path)
 
 ROOT = BASE
 RUN = BASE / "outputs/pdfs"

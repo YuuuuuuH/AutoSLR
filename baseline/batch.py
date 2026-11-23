@@ -5,15 +5,16 @@ from pathlib import Path
 
 import pandas as pd
 
-from scripts.common import BASE, ENDPOINT, digest, now, read_json, read_jsonl, save, verify_vendor, write_jsonl
-from scripts.screen import add_screen_args, capture_requests, screening_config
+from screen import (
+    BASE, ENDPOINT, SOURCE_COMMIT, DATASET_REVISION, add_screen_args, check_prompts,
+    digest, now, parse_decision, prepare_requests, read_json, read_jsonl, save, write_jsonl,
+)
 
 TERMINAL = {"completed", "failed", "expired", "cancelled"}
 
 
 def prepare(args):
-    config = screening_config(args, offline=True)
-    requests, selected = capture_requests(config)
+    requests, selected = prepare_requests(args)
     if not requests:
         raise SystemExit("No eligible articles after author filtering")
     if args.run_dir.exists() and any(args.run_dir.iterdir()):
@@ -28,18 +29,17 @@ def prepare(args):
         write_jsonl(path, rows)
         jobs.append({"name": name, "file": str(path.relative_to(args.run_dir)), "sha256": digest(path),
                      "rows": len(rows), "status": "prepared"})
-    manifest = verify_vendor()
     plan = {"created_utc": now(), "stage": "abstract_screen", "pathogen": args.pathogen, "model": args.model,
             "endpoint": ENDPOINT, "rows": len(requests),
             "source_input_sha256": digest(args.input), "rows_sha256": digest(args.run_dir / "rows.csv"),
-            "upstream_commit": manifest["upstream_commit"], "dataset_revision": manifest["dataset_revision"],
+            "upstream_commit": SOURCE_COMMIT, "dataset_revision": DATASET_REVISION,
             "jobs": jobs, "model_calls": 0, "transport": "openai_batch_api"}
     save(args.run_dir / "plan.json", plan)
     print(json.dumps({"rows": len(requests), "jobs": len(jobs), "run_dir": str(args.run_dir), "model_calls": 0}))
 
 
 def load_state(directory):
-    verify_vendor()
+    check_prompts()
     plan = read_json(directory / "plan.json")
     if plan["stage"] != "abstract_screen":
         raise ValueError("Only title and abstract Batch screening is supported")
@@ -109,7 +109,6 @@ def download_output(client, directory, file_id, name):
 
 
 def collect(client, directory, plan, state):
-    from src.screening.abstract import parse_decision
     for job in state["jobs"]:
         if job.get("collected") or job["status"] not in TERMINAL:
             continue
