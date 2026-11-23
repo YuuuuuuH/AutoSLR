@@ -34,10 +34,10 @@ The planning target is completion by 28 March 2027, which before submission date
 | W3 | 12 Oct |Done|Define the research scope|The proposal|
 | W4 | 19 Oct |Done|Writing|Background Chapter|
 | W5 | 26 Oct |Done|---|---|
-| W6 | 2 Nov |In Progress|Implement AgentSLR| Comparable baseline|
-| W7 | 9 Nov |---|---|---|
-| W8 | 16 Nov |---|---|---|
-| W9 | 23 Nov |---|---|---|
+| W6 | 2 Nov |Done|Implement AgentSLR| Comparable baseline|
+| W7 | 9 Nov |Done|Screening stage one of titles and abstracts|Results of inclusion and exclusion|
+| W8 | 16 Nov |Done|Retrieve PDF of included papers and run OCR|PDF files and OCR results|
+| W9 | 23 Nov |In Progress|Initial screening of the entire text|IResults of inclusion, exclusion and Scores|
 | W10 | 30 Nov |---|---|---|
 | W11 | 7 Dec |---|---|---|
 | W12 | 14 Dec |---|---|---|
