@@ -1,6 +1,6 @@
 # Title and abstract screening baseline
 
-This package provides four tools for the first screening stage and the PDF acquisition that follows it.
+This package provides four tools for the first screening stage and PDF acquisition, plus a utility for converting existing PMC JATS XML full texts to Markdown.
 
 | File | Purpose |
 |---|---|
@@ -8,6 +8,7 @@ This package provides four tools for the first screening stage and the PDF acqui
 | `scripts/screen.py` | Run title and abstract screening or export its requests offline |
 | `scripts/batch.py` | Prepare, submit, inspect, and collect title-screening Batch jobs |
 | `scripts/collect_pdfs.py` | Acquire and validate PDFs, including sources found through AI web searches |
+| `scripts/jats2md.py` | Convert existing PMC JATS XML full texts to Markdown with a conversion manifest |
 
 `run.py` provides the command-line entry points. Supporting modules and the required subset of the author's implementation are included.
 
@@ -199,3 +200,41 @@ Report newly validated PDFs, remaining missing articles, and source evidence.
 ```
 
 PMC programmatic retrieval follows its [supported dataset services](https://pmc.ncbi.nlm.nih.gov/tools/textmining/) and [cloud service](https://pmc.ncbi.nlm.nih.gov/tools/pmcaws/). Europe PMC provides [metadata and full-text access services](https://dev.europepmc.org/RestfulWebService).
+
+## Convert existing PMC JATS XML to Markdown
+
+`scripts/jats2md.py` is the converter from the Windows reproduction workspace's `tools/jats2md.py`. It uses only the Python standard library. Its conversion functions are preserved; the packaged copy removes comments and docstrings and accepts an explicit command-line argument list. Original and packaged hashes are recorded in `source_manifest.json`.
+
+Run it on a directory containing article XML files.
+
+```bash
+.venv/bin/python run.py xml-to-md data/jats/lassa outputs/jats_markdown/lassa
+.venv/bin/python run.py xml-to-md data/jats/lassa outputs/jats_sample/lassa --limit 10
+```
+
+The standalone script can also be used without installing the other baseline dependencies.
+
+```bash
+python scripts/jats2md.py data/jats/lassa outputs/jats_markdown/lassa
+```
+
+On Windows, from the `baseline` directory.
+
+```powershell
+py -3 scripts/jats2md.py data/jats/lassa outputs/jats_markdown/lassa --limit 10
+```
+
+Input discovery is nonrecursive and selects filenames ending in `.xml` in sorted order. Name each XML file with the corresponding `article_id` and use a separate directory per cohort. The output is `<article_id>.md` plus `manifest_xml2md.jsonl`.
+
+The converter retains article metadata, abstracts, keywords, body sections, paragraphs, lists, simple Markdown tables, captions, formula text or TeX, back matter, and a final `## References` section. It skips embedded sub-articles, peer-review responses, and images. Table spans and complex MathML formatting are not fully preserved.
+
+| Manifest status | Meaning |
+|---|---|
+| `ok` | Rendered body length is at least 2,000 characters |
+| `short_body` | Rendered body length is 200 to 1,999 characters |
+| `no_body` | Rendered body length is below 200 characters |
+| `error` | XML parsing or conversion failed |
+
+Each record includes the XML source hash, Markdown hash for successful conversions, body length, reference count, and whether a body element exists. Status is a length heuristic. Review `short_body`, `no_body`, and `error` records before treating the output as a full text; scanned back issues may still require the PDF/OCR route. Select outputs using the manifest and hashes, since Markdown files are written for short and missing-body cases too.
+
+This utility converts existing XML. It does not retrieve XML, run OCR, or call a model. Keep the `pmc_jats_xml` source label when combining XML-derived text with text obtained through PDF/OCR.

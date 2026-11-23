@@ -53,6 +53,9 @@ def verify_vendor():
     for name, expected in manifest["vendor_files_sha256"].items():
         if digest(VENDOR / name) != expected:
             raise RuntimeError(f"Upstream file changed: {name}")
+    for name, metadata in manifest.get("local_tools", {}).items():
+        if digest(BASE / name) != metadata["packaged_sha256"]:
+            raise RuntimeError(f"Local tool changed: {name}")
     return manifest
 
 

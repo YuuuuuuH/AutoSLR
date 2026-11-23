@@ -120,6 +120,39 @@ def check_pdf_supplements(directory):
     return 4
 
 
+def check_jats_conversion(directory):
+    from scripts import jats2md
+    directory.mkdir()
+    inputs = directory / "xml"
+    inputs.mkdir()
+    body = "Synthetic transmission results and confidence intervals. " * 60
+    full = ('<article><front><article-meta><title-group><article-title>XML fixture</article-title>'
+            '</title-group></article-meta></front><body><sec><title>Results</title><p>' + body + '</p>'
+            '<table-wrap><table><tr><th>Parameter</th><th>Value</th></tr><tr><td>R</td><td>1.5</td></tr>'
+            '</table></table-wrap><disp-formula><tex-math>R_0 = 1.5</tex-math></disp-formula></sec></body>'
+            '<back><ref-list><ref><mixed-citation>Fixture reference.</mixed-citation></ref></ref-list></back>'
+            '<sub-article><body><p>Excluded peer review.</p></body></sub-article></article>')
+    fixtures = {"01_full.xml": full, "02_short.xml": "<article><body><p>" + "Short body. " * 30 + "</p></body></article>",
+                "03_scanned.xml": "<article><front><article-meta><abstract><p>" + body + "</p></abstract></article-meta></front></article>",
+                "04_invalid.xml": "<article><broken>"}
+    for name, text in fixtures.items():
+        (inputs / name).write_text(text)
+    with redirect_stdout(StringIO()) as output:
+        jats2md.main([str(inputs), str(directory / "markdown")])
+    assert json.loads(output.getvalue()) == {"n": 4, "ok": 1, "no_body": 1, "short_body": 1, "error": 1}
+    text = (directory / "markdown/01_full.md").read_text()
+    assert "| Parameter | Value |" in text and "$R_0 = 1.5$" in text and "## References" in text
+    assert "Fixture reference." in text and "Excluded peer review." not in text
+    for row in [json.loads(line) for line in (directory / "markdown/manifest_xml2md.jsonl").read_text().splitlines()]:
+        assert row["source_sha256"] == digest(inputs / (row["article_id"] + ".xml"))
+        if row["status"] != "error":
+            assert row["md_sha256"] == digest(directory / "markdown" / (row["article_id"] + ".md"))
+    with redirect_stdout(StringIO()) as output:
+        jats2md.main([str(inputs), str(directory / "limited"), "--limit", "1"])
+    assert json.loads(output.getvalue())["n"] == 1
+    return 4
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description="Verify title-screening requests, Batch recovery and PDF supplements offline.")
     parser.add_argument("--output", type=Path, default=BASE / "outputs/verification.json")
@@ -133,8 +166,10 @@ def main(argv=None):
         requests = check_requests(directory)
         recovery = check_batch_recovery(directory)
         pdf_checks = check_pdf_supplements(directory / "pdf_checks")
+        xml_checks = check_jats_conversion(directory / "xml_checks")
     result = {"status": "passed", "vendor_files": len(manifest["vendor_files_sha256"]),
               "captured_requests": requests, "batch_recovery_checks": recovery, "pdf_supplement_checks": pdf_checks,
+              "jats_conversion_checks": xml_checks,
               "differing_request_fields": ["model"], "model_calls": 0}
     save(args.output, result)
     print(json.dumps(result))
