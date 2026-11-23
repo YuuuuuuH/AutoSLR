@@ -321,6 +321,7 @@ def main(argv=None):
     parser.add_argument("--workers", type=int, default=8)
     parser.add_argument("--retry-missing", action="store_true")
     parser.add_argument("--offline", action="store_true", help="Validate and reuse existing PDFs without network access")
+    parser.add_argument("--all-articles", action="store_true", help="Collect the retrieval corpus before title and abstract screening")
     parser.add_argument("--supplements", type=Path, help="CSV containing PDF URLs or local files found by an AI web search")
     arguments = parser.parse_args(argv)
     if arguments.workers < 1:
@@ -331,18 +332,22 @@ def main(argv=None):
     if not paths:
         paths = sorted(arguments.input_dir.glob("*/abstract_screening.csv"))
     if not paths:
+        paths = sorted(arguments.input_dir.glob("*/harvest_metadata.csv"))
+    if not paths:
         parser.error("No cohort CSV files found")
     hashes = {str(path.relative_to(arguments.input_dir)): digest(path) for path in paths}
     manifest_path = RUN / "input_manifest.json"
-    if manifest_path.exists() and read_json(manifest_path)["inputs_sha256"] != hashes:
-        raise SystemExit("Input files changed. Use a new output directory to preserve the previous run")
+    if manifest_path.exists():
+        previous = read_json(manifest_path)
+        if previous["inputs_sha256"] != hashes or previous.get("all_articles", False) != arguments.all_articles:
+            raise SystemExit("Input files or selection changed. Use a new output directory to preserve the previous run")
     jobs = []
     for path in paths:
-        cohort = path.parent.name if path.name == "abstract_screening.csv" else path.stem
+        cohort = path.parent.name if path.name in {"abstract_screening.csv", "harvest_metadata.csv"} else path.stem
         source = pd.read_csv(path, dtype=str).fillna("")
         if not {"article_id", "title"} <= set(source.columns):
             parser.error(f"{path} requires article_id and title")
-        if "ai4epi_abstract_decision" in source:
+        if "ai4epi_abstract_decision" in source and not arguments.all_articles:
             source = source.loc[source.ai4epi_abstract_decision.eq("INCLUDE")].copy()
         source["pathogen"] = cohort
         for row in source.to_dict("records"):
@@ -359,7 +364,8 @@ def main(argv=None):
         SUPPLEMENTS = load_supplements(arguments.supplements, jobs)
     except ValueError as error:
         parser.error(str(error))
-    save(manifest_path, {"created_utc": now(), "inputs_sha256": hashes, "selected_rows": len(jobs)})
+    save(manifest_path, {"created_utc": now(), "inputs_sha256": hashes, "all_articles": arguments.all_articles,
+                         "selected_rows": len(jobs)})
     records = []
     with ThreadPoolExecutor(max_workers=arguments.workers) as workers:
         for future in as_completed([workers.submit(recover, row) for row in jobs]):

@@ -1,20 +1,18 @@
 import argparse
+from importlib import import_module
 import json
 import os
 from pathlib import Path
 
 import pandas as pd
 
-from screen import (
-    BASE, ENDPOINT, SOURCE_COMMIT, DATASET_REVISION, add_screen_args, check_prompts,
-    digest, now, parse_decision, prepare_requests, read_json, read_jsonl, save, write_jsonl,
-)
+screen = import_module("02a_screen")
 
 TERMINAL = {"completed", "failed", "expired", "cancelled"}
 
 
 def prepare(args):
-    requests, selected = prepare_requests(args)
+    requests, selected = screen.prepare_requests(args)
     if not requests:
         raise SystemExit("No eligible articles after author filtering")
     if args.run_dir.exists() and any(args.run_dir.iterdir()):
@@ -26,34 +24,34 @@ def prepare(args):
         name = f"part_{len(jobs):03d}"
         path = args.run_dir / "inputs" / f"{name}.jsonl"
         rows = requests[start:start + args.shard_rows]
-        write_jsonl(path, rows)
-        jobs.append({"name": name, "file": str(path.relative_to(args.run_dir)), "sha256": digest(path),
+        screen.write_jsonl(path, rows)
+        jobs.append({"name": name, "file": str(path.relative_to(args.run_dir)), "sha256": screen.digest(path),
                      "rows": len(rows), "status": "prepared"})
-    plan = {"created_utc": now(), "stage": "abstract_screen", "pathogen": args.pathogen, "model": args.model,
-            "endpoint": ENDPOINT, "rows": len(requests),
-            "source_input_sha256": digest(args.input), "rows_sha256": digest(args.run_dir / "rows.csv"),
-            "upstream_commit": SOURCE_COMMIT, "dataset_revision": DATASET_REVISION,
+    plan = {"created_utc": screen.now(), "stage": "abstract_screen", "pathogen": args.pathogen, "model": args.model,
+            "endpoint": screen.ENDPOINT, "rows": len(requests),
+            "source_input_sha256": screen.digest(args.input), "rows_sha256": screen.digest(args.run_dir / "rows.csv"),
+            "upstream_commit": screen.SOURCE_COMMIT, "dataset_revision": screen.DATASET_REVISION,
             "jobs": jobs, "model_calls": 0, "transport": "openai_batch_api"}
-    save(args.run_dir / "plan.json", plan)
+    screen.save(args.run_dir / "plan.json", plan)
     print(json.dumps({"rows": len(requests), "jobs": len(jobs), "run_dir": str(args.run_dir), "model_calls": 0}))
 
 
 def load_state(directory):
-    check_prompts()
-    plan = read_json(directory / "plan.json")
+    screen.check_prompts()
+    plan = screen.read_json(directory / "plan.json")
     if plan["stage"] != "abstract_screen":
         raise ValueError("Only title and abstract Batch screening is supported")
     state_path = directory / "state.json"
     if state_path.exists():
-        state = read_json(state_path)
-        if state["plan_sha256"] != digest(directory / "plan.json"):
+        state = screen.read_json(state_path)
+        if state["plan_sha256"] != screen.digest(directory / "plan.json"):
             raise RuntimeError("Frozen plan changed")
     else:
-        state = {"plan_sha256": digest(directory / "plan.json"), "jobs": plan["jobs"]}
-    if digest(directory / "rows.csv") != plan["rows_sha256"]:
+        state = {"plan_sha256": screen.digest(directory / "plan.json"), "jobs": plan["jobs"]}
+    if screen.digest(directory / "rows.csv") != plan["rows_sha256"]:
         raise RuntimeError("Frozen input rows changed")
     for job in state["jobs"]:
-        if digest(directory / job["file"]) != job["sha256"]:
+        if screen.digest(directory / job["file"]) != job["sha256"]:
             raise RuntimeError(f"Frozen requests changed: {job['file']}")
     return plan, state
 
@@ -75,13 +73,13 @@ def submit(client, directory, state, max_jobs):
                 with (directory / job["file"]).open("rb") as handle:
                     upload = client.files.create(file=handle, purpose="batch")
                 job.update(status="uploaded", input_file_id=upload.id)
-                save(directory / "state.json", state)
+                screen.save(directory / "state.json", state)
             job["status"] = "creating"
-            save(directory / "state.json", state)
-            batch = client.batches.create(input_file_id=job["input_file_id"], endpoint=ENDPOINT,
+            screen.save(directory / "state.json", state)
+            batch = client.batches.create(input_file_id=job["input_file_id"], endpoint=screen.ENDPOINT,
                      completion_window="24h", metadata={"run": directory.name[:128], "shard": job["name"]})
         job.update(status=batch.status, batch_id=batch.id)
-        save(directory / "state.json", state)
+        screen.save(directory / "state.json", state)
         submitted += 1
     return submitted
 
@@ -93,7 +91,7 @@ def poll(client, directory, state):
         batch = client.batches.retrieve(job["batch_id"])
         job["status"] = batch.status
         job["receipt"] = batch.model_dump(mode="json")
-        save(directory / "state.json", state)
+        screen.save(directory / "state.json", state)
 
 
 def download_output(client, directory, file_id, name):
@@ -105,7 +103,7 @@ def download_output(client, directory, file_id, name):
         temporary = path.with_name(path.name + ".tmp")
         temporary.write_bytes(client.files.content(file_id).content)
         temporary.replace(path)
-    return read_jsonl(path)
+    return screen.read_jsonl(path)
 
 
 def collect(client, directory, plan, state):
@@ -115,7 +113,7 @@ def collect(client, directory, plan, state):
         receipt = job["receipt"]
         rows = download_output(client, directory, receipt.get("output_file_id"), job["name"] + "_output.jsonl")
         rows += download_output(client, directory, receipt.get("error_file_id"), job["name"] + "_errors.jsonl")
-        expected = {row["custom_id"] for row in read_jsonl(directory / job["file"])}
+        expected = {row["custom_id"] for row in screen.read_jsonl(directory / job["file"])}
         seen, decisions, errors = set(), [], []
         for row in rows:
             key = row["custom_id"]
@@ -131,22 +129,22 @@ def collect(client, directory, plan, state):
                 raise RuntimeError(f"Returned model differs for {key}: {body['model']}")
             choice = body["choices"][0]
             content = choice["message"].get("content") or ""
-            decisions.append({"custom_id": key, "decision": parse_decision(content) if choice["finish_reason"] == "stop" else "UNCLEAR",
+            decisions.append({"custom_id": key, "decision": screen.parse_decision(content) if choice["finish_reason"] == "stop" else "UNCLEAR",
                               "raw_output": content, "model": body["model"], "response_id": body["id"],
                               "batch_id": job["batch_id"], "finish_reason": choice["finish_reason"], "usage": body.get("usage", {})})
         errors.extend({"custom_id": key, "error": {"code": "missing_output"}} for key in sorted(expected - seen))
-        write_jsonl(directory / "outputs" / (job["name"] + "_decisions.jsonl"), decisions)
-        write_jsonl(directory / "outputs" / (job["name"] + "_unresolved.jsonl"), errors)
+        screen.write_jsonl(directory / "outputs" / (job["name"] + "_decisions.jsonl"), decisions)
+        screen.write_jsonl(directory / "outputs" / (job["name"] + "_unresolved.jsonl"), errors)
         job.update(collected=True, decided=len(decisions), unresolved=len(errors))
-        save(directory / "state.json", state)
+        screen.save(directory / "state.json", state)
     combined = []
     for job in state["jobs"]:
         if job.get("collected"):
-            combined.extend(read_jsonl(directory / "outputs" / (job["name"] + "_decisions.jsonl")))
+            combined.extend(screen.read_jsonl(directory / "outputs" / (job["name"] + "_decisions.jsonl")))
     mapping = {row["custom_id"]: row for row in combined}
     if len(mapping) != len(combined):
         raise RuntimeError("Duplicate successful decisions")
-    write_jsonl(directory / "decisions.jsonl", combined)
+    screen.write_jsonl(directory / "decisions.jsonl", combined)
     frame = pd.read_csv(directory / "rows.csv")
     prefix = "ai4epi_abstract"
     keys = [f"{plan['pathogen']}/{article}" for article in frame.article_id]
@@ -163,7 +161,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description='Freeze author-generated requests and operate the OpenAI Batch API.')
     commands = parser.add_subparsers(dest="action", required=True)
     prep = commands.add_parser("prepare", help="Freeze requests offline")
-    add_screen_args(prep)
+    screen.add_screen_args(prep)
     prep.add_argument("--run-dir", type=Path, required=True)
     prep.add_argument("--shard-rows", type=int, default=1000)
     for name in ["submit", "status", "collect"]:
@@ -190,7 +188,7 @@ def main(argv=None):
         else:
             poll(client, args.run_dir, state)
         result = collect(client, args.run_dir, plan, state) if args.action == "collect" else {"jobs": [{"name": j["name"], "status": j["status"]} for j in state["jobs"]]}
-    save(args.run_dir / "progress.json", {"checked_utc": now(), **result})
+    screen.save(args.run_dir / "progress.json", {"checked_utc": screen.now(), **result})
     print(json.dumps(result))
     return 0
 
