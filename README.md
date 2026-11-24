@@ -8,7 +8,15 @@ The planned outputs are a working system, reference annotations and experiments,
 
 ## Current Status
 
-[AutoSLR](03_AutoSLR_Architecture.md)
+Abstract Filtering:
+| Human | Human Full text | Terra | Numbers |
+|---|---|---|---|
+|Include|Include|Include|105|
+|Include|Include|Exclude|2|
+|Include|Exclude|Exclude|105|
+|Include|Exclude|Include|83|
+|Exclude|Exclude|Include|107|
+
 
 ## Milestones
 
