@@ -8,7 +8,8 @@ The planned outputs are a working system, reference annotations and experiments,
 
 ## Current Status
 
-Abstract Filtering:
+recall: 78.6%; precision: 48.9%. The workload for full-text candidate processing increased by 60.8%
+
 | Human | Human Full text | Terra | Numbers |
 |---|---|---|---|
 |Include|Include|Include|737|
