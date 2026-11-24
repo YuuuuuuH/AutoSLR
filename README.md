@@ -11,11 +11,13 @@ The planned outputs are a working system, reference annotations and experiments,
 Abstract Filtering:
 | Human | Human Full text | Terra | Numbers |
 |---|---|---|---|
-|Include|Include|Include|105|
-|Include|Include|Exclude|2|
-|Include|Exclude|Exclude|105|
-|Include|Exclude|Include|83|
-|Exclude|Exclude|Include|107|
+|Include|Include|Include|737|
+|Include|Include|Exclude|8|
+|Include|Exclude|Exclude|358|
+|Include|Exclude|Include|604|
+|Exclude|Exclude|Include|1404|
+|Exclude|Exclude|Exclude|13137|
+
 
 
 ## Milestones
